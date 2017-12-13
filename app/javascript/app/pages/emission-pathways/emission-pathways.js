@@ -12,4 +12,4 @@ import Component from './emission-pathways-component';
 //   };
 // };
 
-export default withRouter(connect(null, null)(Component));
+export default withRouter(connect(mapStateToProps, null)(Component));
