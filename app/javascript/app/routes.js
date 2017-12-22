@@ -450,6 +450,19 @@ export default [
             label: 'STORIES'
           },
           {
+            path: '/ndc-search',
+            exact: true,
+            component: NDCSearch,
+            headerImage: 'ndc'
+          },
+          {
+            path: '/stories',
+            component: error,
+            exact: true,
+            nav: false,
+            label: 'STORIES'
+          },
+          {
             path: '/about',
             component: About,
             nav: true,
@@ -457,64 +470,42 @@ export default [
             headerImage: 'about',
             routes: [
               {
-                path: '/ndc-search',
-                exact: true,
-                component: NDCSearch,
-                headerImage: 'ndc'
-              },
-              {
-                path: '/stories',
-                component: error,
-                exact: true,
-                nav: false,
-                label: 'STORIES'
-              },
-              {
                 path: '/about',
-                component: About,
-                nav: true,
-                label: 'ABOUT',
-                headerImage: 'about',
-                routes: [
-                  {
-                    path: '/about',
-                    component: AboutDescription,
-                    exact: true,
-                    anchor: true,
-                    label: 'About Climate Watch'
-                  },
-                  {
-                    path: '/about/partners',
-                    component: AboutPartners,
-                    exact: true,
-                    anchor: true,
-                    label: 'Climate Watch Partners'
-                  },
-                  {
-                    path: '/about/contact',
-                    component: AboutContact,
-                    exact: true,
-                    anchor: true,
-                    label: 'Contact Us & Feedback'
-                  },
-                  {
-                    path: '/about/permissions',
-                    component: AboutPermissions,
-                    exact: true,
-                    anchor: true,
-                    label: 'Permissions & Licensing'
-                  }
-                ]
+                component: AboutDescription,
+                exact: true,
+                anchor: true,
+                label: 'About Climate Watch'
               },
               {
-                path: '/error-page',
-                component: error
+                path: '/about/partners',
+                component: AboutPartners,
+                exact: true,
+                anchor: true,
+                label: 'Climate Watch Partners'
               },
               {
-                path: '/',
-                component: () => createElement(Redirect, { to: '/error-page' })
+                path: '/about/contact',
+                component: AboutContact,
+                exact: true,
+                anchor: true,
+                label: 'Contact Us & Feedback'
+              },
+              {
+                path: '/about/permissions',
+                component: AboutPermissions,
+                exact: true,
+                anchor: true,
+                label: 'Permissions & Licensing'
               }
             ]
+          },
+          {
+            path: '/error-page',
+            component: error
+          },
+          {
+            path: '/',
+            component: () => createElement(Redirect, { to: '/error-page' })
           }
         ]
       }
