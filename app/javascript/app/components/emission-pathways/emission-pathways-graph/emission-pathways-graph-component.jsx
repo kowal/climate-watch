@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import EspLocationsProvider from 'providers/esp-locations-provider';
 import EspTimeSeriesProvider from 'providers/esp-time-series-provider';
 import ButtonGroup from 'components/button-group';
-import ModalOverview from 'components/modal-overview';
 import Dropdown from 'components/dropdown';
 import Chart from 'components/charts/chart';
 
 import layout from 'styles/layout.scss';
-import styles from './emission-pathway-graph-styles.scss';
+import styles from './emission-pathways-graph-styles.scss';
 
 class EmissionPathwayGraph extends PureComponent {
   // eslint-disable-line react/prefer-stateless-function
@@ -20,18 +19,15 @@ class EmissionPathwayGraph extends PureComponent {
       filtersOptions,
       filtersSelected,
       handleSelectorChange,
-      handleCategoryChange,
-      handleModelChange,
-      handleInfoClick,
-      modalData
+      handleModelChange
     } = this.props;
-    const shouldRenderEspTimeSeriesProvider =
+    const needsTimeSeries =
       filtersSelected && filtersSelected.location && filtersSelected.model;
     return (
       <div className={styles.wrapper}>
         <div className={layout.content}>
           <EspLocationsProvider withTimeSeries />
-          {shouldRenderEspTimeSeriesProvider && (
+          {needsTimeSeries && (
             <EspTimeSeriesProvider
               location={filtersSelected.location.value}
               model={filtersSelected.model.value}
@@ -55,25 +51,16 @@ class EmissionPathwayGraph extends PureComponent {
               hideResetButton
             />
             <Dropdown
-              label="Categories"
-              placeholder="Select a category"
-              options={filtersOptions.categories}
-              onValueChange={option => handleCategoryChange(option, 'category')}
-              value={filtersSelected.category}
-              hideResetButton
-            />
-            <Dropdown
               label="Indicator"
               placeholder="Select an indicator"
               options={filtersOptions.indicators}
               onValueChange={option =>
                 handleSelectorChange(option, 'indicator')}
               value={filtersSelected.indicator}
-              hideResetButton
             />
+            <div />
             <ButtonGroup
               className={styles.colEnd}
-              onInfoClick={handleInfoClick}
               shareUrl="/embed/emission-pathway-graph"
             />
           </div>
@@ -87,18 +74,8 @@ class EmissionPathwayGraph extends PureComponent {
             height={500}
             loading={loading}
             targetParam="scenario"
-            unit={filtersSelected.indicator && filtersSelected.indicator.unit}
           />
         </div>
-        <ModalOverview
-          data={modalData}
-          title={'Emission Pathways Metadata'}
-          tabTitles={[
-            'Model',
-            'Scenarios',
-            filtersSelected.indicator ? 'Indicator' : null
-          ]}
-        />
       </div>
     );
   }
@@ -111,10 +88,7 @@ EmissionPathwayGraph.propTypes = {
   filtersOptions: PropTypes.object,
   filtersSelected: PropTypes.object,
   handleSelectorChange: PropTypes.func,
-  handleModelChange: PropTypes.func,
-  handleCategoryChange: PropTypes.func,
-  handleInfoClick: PropTypes.func,
-  modalData: PropTypes.array
+  handleModelChange: PropTypes.func
 };
 
 export default EmissionPathwayGraph;

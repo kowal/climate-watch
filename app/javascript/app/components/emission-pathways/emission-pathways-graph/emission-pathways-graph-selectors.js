@@ -1,16 +1,12 @@
 import { createSelector } from 'reselect';
 import isEmpty from 'lodash/isEmpty';
 import uniqBy from 'lodash/uniqBy';
-import pick from 'lodash/pick';
-import remove from 'lodash/remove';
-import uniq from 'lodash/uniq';
 import groupBy from 'lodash/groupBy';
 import {
   getYColumnValue,
   getThemeConfig,
   getTooltipConfig
 } from 'utils/graphs';
-import { ESP_BLACKLIST } from 'data/constants';
 
 // constants needed for data parsing
 const COLORS = [
@@ -37,13 +33,13 @@ const AXES_CONFIG = {
   },
   yLeft: {
     name: 'Emissions',
+    unit: 'CO<sub>2</sub>e',
     format: 'number'
   }
 };
 
 // meta data for selectors
 const getLocations = state => state.locations || null;
-const getAvailableLocationsModelIds = state => state.availableModelIds || null;
 const getModels = state => state.models || null;
 const getScenarios = state => state.scenarios || null;
 const getIndicators = state => state.indicators || null;
@@ -52,18 +48,9 @@ const getLocation = state => state.location || null;
 const getModel = state => state.model || null;
 const getScenario = state => state.scenario;
 const getIndicator = state => state.indicator || null;
-const getCategory = state => state.category || null;
 
 // data for the graph
 const getData = state => state.data || null;
-
-const getAvailableModelIds = createSelector(
-  [getAvailableLocationsModelIds, getLocation],
-  (availableLocationModelIds, location) => {
-    if (!availableLocationModelIds || !location) return null;
-    return availableLocationModelIds[location];
-  }
-);
 
 // Selector options
 export const getLocationsOptions = createSelector([getLocations], locations => {
@@ -86,23 +73,14 @@ export const getLocationSelected = createSelector(
   }
 );
 
-export const getModelsOptions = createSelector(
-  [getModels, getAvailableModelIds],
-  (models, availableModelIds) => {
-    if (!models || !models.length) return [];
-    let availableModels = models;
-    if (!isEmpty(availableModelIds)) {
-      availableModels = models.filter(
-        m => availableModelIds.indexOf(m.id) > -1
-      );
-    }
-    return availableModels.map(m => ({
-      label: m.abbreviation,
-      value: m.id.toString(),
-      scenarios: m.scenarios ? m.scenarios.map(s => s.id.toString()) : null
-    }));
-  }
-);
+export const getModelsOptions = createSelector([getModels], models => {
+  if (!models || !models.length) return [];
+  return models.map(m => ({
+    label: m.abbreviation,
+    value: m.id.toString(),
+    scenarios: m.scenarios ? m.scenarios.map(s => s.id.toString()) : null
+  }));
+});
 
 export const getModelSelected = createSelector(
   [getModelsOptions, getModel],
@@ -157,12 +135,12 @@ export const filterDataByScenario = createSelector(
   }
 );
 
-const getAvailableIndicators = createSelector(
+export const getIndicatorsOptions = createSelector(
   [filterDataByScenario, getIndicators, getModelSelected],
   (data, indicators, modelSelected) => {
     if (!data || !indicators || !indicators.length || !modelSelected) return [];
-    const indicatorsWithData = uniq(data.map(d => d.indicator_id.toString()));
-    const selectedIndicatorsWithData = [];
+    const indicatorsWithData = data.map(d => d.indicator_id.toString());
+    const selectedIndicatorOptionsWithData = [];
     indicators.forEach(i => {
       if (
         i.model &&
@@ -171,56 +149,13 @@ const getAvailableIndicators = createSelector(
         i.name &&
         indicatorsWithData.indexOf(i.id.toString()) > -1
       ) {
-        selectedIndicatorsWithData.push(i);
+        selectedIndicatorOptionsWithData.push({
+          label: i.name,
+          value: i.id.toString()
+        });
       }
     });
-    return selectedIndicatorsWithData;
-  }
-);
-
-export const getAvailableCategoryOptions = createSelector(
-  [getAvailableIndicators],
-  indicators => {
-    if (!indicators) return null;
-    const uniqueCategories = uniq(indicators.map(i => i.category.name));
-
-    return uniqueCategories.map(c => ({
-      label: c,
-      value: c
-    }));
-  }
-);
-
-export const getCategorySelected = createSelector(
-  [getAvailableCategoryOptions, getCategory],
-  (categories, categorySelected) => {
-    if (!categories) return null;
-    if (!categorySelected) {
-      const defaultCategory = categories.find(i => i.label === 'Energy');
-      return defaultCategory || categories[0];
-    }
-    return categories.find(c => categorySelected === c.value);
-  }
-);
-
-export const getIndicatorsOptions = createSelector(
-  [getAvailableIndicators, getCategorySelected],
-  (indicators, selectedCategory) => {
-    if (!indicators) return null;
-    let filteredIndicatorsByCategory = indicators;
-    if (selectedCategory) {
-      filteredIndicatorsByCategory = indicators.filter(
-        i => selectedCategory.label === (i.category && i.category.name)
-      );
-    }
-    return uniqBy(
-      filteredIndicatorsByCategory.map(i => ({
-        label: i.name,
-        value: i.id.toString(),
-        unit: i.unit
-      })),
-      'label'
-    );
+    return uniqBy(selectedIndicatorOptionsWithData, 'label');
   }
 );
 
@@ -252,15 +187,13 @@ export const getFiltersOptions = createSelector(
     getLocationsOptions,
     getModelsOptions,
     getScenariosOptions,
-    getIndicatorsOptions,
-    getAvailableCategoryOptions
+    getIndicatorsOptions
   ],
-  (locations, models, scenarios, indicators, categories) => ({
+  (locations, models, scenarios, indicators) => ({
     locations,
     models,
     scenarios,
-    indicators,
-    categories
+    indicators
   })
 );
 
@@ -269,15 +202,13 @@ export const getFiltersSelected = createSelector(
     getLocationSelected,
     getModelSelected,
     getScenariosSelected,
-    getIndicatorSelected,
-    getCategorySelected
+    getIndicatorSelected
   ],
-  (location, model, scenarios, indicator, category) => ({
+  (location, model, scenarios, indicator) => ({
     location,
     model,
     scenarios,
-    indicator,
-    category
+    indicator
   })
 );
 
@@ -301,8 +232,8 @@ export const getChartData = createSelector([filterDataByIndicator], data => {
 });
 
 export const getChartConfig = createSelector(
-  [filterDataByIndicator, getScenariosOptions, getIndicatorSelected],
-  (data, scenarios, indicator) => {
+  [filterDataByIndicator, getScenariosOptions],
+  (data, scenarios) => {
     if (!data || !scenarios) return null;
     const yColumns = data.map(d => {
       const scenario = scenarios.find(
@@ -317,10 +248,7 @@ export const getChartConfig = createSelector(
     const theme = getThemeConfig(yColumnsChecked, COLORS);
     const tooltip = getTooltipConfig(yColumnsChecked);
     return {
-      axes: {
-        ...AXES_CONFIG,
-        yLeft: { ...AXES_CONFIG.yLeft, unit: indicator && indicator.unit }
-      },
+      axes: AXES_CONFIG,
       theme,
       tooltip,
       columns: {
@@ -331,110 +259,9 @@ export const getChartConfig = createSelector(
   }
 );
 
-// Parse Metadata for Modal
-const getModelSelectedMetadata = createSelector(
-  [getModels, getModelSelected],
-  (models, modelSelected) => {
-    if (!models || !modelSelected) return null;
-    return models.find(m => modelSelected.value === m.id.toString());
-  }
-);
-
-const addLinktoModelSelectedMetadata = createSelector(
-  [getModelSelectedMetadata],
-  model => {
-    if (!model) return null;
-    return {
-      ...model,
-      Link: `/emission-pathways/models/${model.id}`
-    };
-  }
-);
-
-export const getScenariosSelectedMetadata = createSelector(
-  [getScenarios, getScenariosSelected],
-  (scenarios, scenariosSelected) => {
-    if (isEmpty(scenarios) || !scenariosSelected) return null;
-    const selectedScenarioIds = scenariosSelected.map(s => s.value);
-    const scenariosMetadata = scenarios.filter(
-      s => selectedScenarioIds.indexOf(s.id.toString()) > -1
-    );
-    return (
-      scenariosMetadata.length > 0 &&
-      scenariosMetadata.map(s => ({
-        name: s.name,
-        description: s.description,
-        Link: `/emission-pathways/scenarios/${s.id}`
-      }))
-    );
-  }
-);
-
-export const getIndicatorSelectedMetadata = createSelector(
-  [getIndicators, getIndicatorSelected],
-  (indicators, indicatorSelected) => {
-    if (!indicators || !indicatorSelected) return null;
-    return indicators.find(i => indicatorSelected.value === i.id.toString());
-  }
-);
-
-export const filterModelsByBlackList = createSelector(
-  [addLinktoModelSelectedMetadata],
-  data => {
-    if (!data || isEmpty(data)) return null;
-    const whiteList = remove(
-      Object.keys(data),
-      n => ESP_BLACKLIST.models.indexOf(n) === -1
-    );
-    return pick(data, whiteList);
-  }
-);
-
-const filterIndicatorsByBlackList = createSelector(
-  [getIndicatorSelectedMetadata],
-  data => {
-    if (!data || isEmpty(data)) return null;
-    const whiteList = remove(
-      Object.keys(data),
-      n => ESP_BLACKLIST.indicators.indexOf(n) === -1
-    );
-    return pick(data, whiteList);
-  }
-);
-
-export const parseObjectsInIndicators = createSelector(
-  [filterIndicatorsByBlackList],
-  data => {
-    if (isEmpty(data)) return null;
-    const parsedData = {};
-    Object.keys(data).forEach(key => {
-      let fieldData = data[key];
-      if (
-        fieldData &&
-        typeof fieldData !== 'string' &&
-        typeof fieldData !== 'number'
-      ) {
-        fieldData = fieldData.name;
-      }
-      parsedData[key] = fieldData;
-    });
-    return parsedData;
-  }
-);
-
-export const getModalData = createSelector(
-  [
-    filterModelsByBlackList,
-    getScenariosSelectedMetadata,
-    parseObjectsInIndicators
-  ],
-  (model, scenarios, indicator) => [model, scenarios, indicator]
-);
-
 export default {
   getChartData,
   getChartConfig,
   getFiltersOptions,
-  getFiltersSelected,
-  getModalData
+  getFiltersSelected
 };
