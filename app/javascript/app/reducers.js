@@ -1,8 +1,10 @@
 /* eslint-disable import/first */
 import { combineReducers } from 'redux';
 import { handleActions } from 'app/utils/redux';
+import { handleModule } from 'redux-tools';
 
 // Providers
+import * as loginProvider from 'providers/login-provider';
 import * as countriesProvider from 'providers/countries-provider';
 import * as regionsProvider from 'providers/regions-provider';
 import * as espLocationsProvider from 'providers/esp-locations-provider';
@@ -22,6 +24,7 @@ import * as espIndicatorsProvider from 'providers/esp-indicators-provider';
 import * as espIndicatorsTrendProvider from 'providers/esp-indicators-trend-provider';
 
 const providersReducers = {
+  login: handleModule(loginProvider),
   countries: handleActions(countriesProvider),
   regions: handleActions(regionsProvider),
   adaptations: handleActions(adaptationsProvider),
@@ -46,11 +49,13 @@ import * as NDCSPage from 'pages/ndcs';
 
 import * as countryNDCFullPage from 'pages/ndc-country-full';
 import * as ndcSearchPage from 'pages/ndc-search';
+import * as myCWEditor from 'pages/my-climate-watch/my-cw-editor';
 
 const pagesReducers = {
   ndcs: handleActions(NDCSPage),
   countryNDCFull: handleActions(countryNDCFullPage),
-  ndcSearch: handleActions(ndcSearchPage)
+  ndcSearch: handleActions(ndcSearchPage),
+  myCWEditor: handleModule(myCWEditor)
 };
 
 // Components
@@ -67,6 +72,9 @@ import * as countryGhgEmissionsMapComponent from 'components/country/country-ghg
 import * as countryGhgEmissionsComponent from 'components/country/country-ghg-emissions';
 import * as countrySDGLinkagesComponent from 'components/country/country-ndc-sdg-linkages';
 import * as countryNDCOverviewComponent from 'components/country/country-ndc-overview';
+import * as myInsights from 'components/my-climate-watch/my-insights';
+import * as myVisualisations from 'components/my-climate-watch/my-visualisations';
+import * as myVisualisationsCreator from 'components/my-climate-watch/viz-creator';
 import * as ndcSdgLinkagesComponent from 'components/ndc-sdg/ndc-sdg-linkages-content';
 
 const componentsReducers = {
@@ -83,6 +91,9 @@ const componentsReducers = {
   countrySDGLinkages: handleActions(countrySDGLinkagesComponent),
   espGraph: handleActions(espGraphComponent),
   countryNDCOverview: handleActions(countryNDCOverviewComponent),
+  insights: handleModule(myInsights),
+  visualisations: handleModule(myVisualisations),
+  vizCreator: handleModule(myVisualisationsCreator),
   ndcSdg: handleActions(ndcSdgLinkagesComponent)
 };
 

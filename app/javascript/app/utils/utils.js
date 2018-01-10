@@ -1,6 +1,8 @@
 import deburr from 'lodash/deburr';
 import toUpper from 'lodash/toUpper';
 
+export const assign = (o, ...rest) => Object.assign({}, o, ...rest);
+
 export function deburrUpper(string) {
   return toUpper(deburr(string));
 }
@@ -35,8 +37,26 @@ export function compareIndexByKey(attribute) {
   };
 }
 
+export function importAllImagesFromFolder(r) {
+  const images = {};
+  const keys = r.keys();
+  if (keys.length) {
+    keys.forEach(item => {
+      images[
+        item
+          .replace('./', '')
+          .replace('.jpeg', '')
+          .replace('.jpg', '')
+          .replace('.png', '')
+      ] = r(item);
+    });
+  }
+  return images;
+}
+
 export default {
   compareIndexByKey,
   deburrUpper,
-  isCountryIncluded
+  isCountryIncluded,
+  importAllImagesFromFolder
 };

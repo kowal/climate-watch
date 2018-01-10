@@ -39,6 +39,11 @@ import AboutPermissions from 'components/about/about-permissions';
 import GHGCountryEmissions from 'components/country/country-ghg';
 import NDCSDGLinkages from 'components/country/country-ndc-sdg-linkages';
 import ClimateVulnerability from 'components/country/country-climate-vulnerability';
+import MyClimateWatch from 'pages/my-climate-watch';
+import MyInsights from 'components/my-climate-watch/my-insights';
+import MyVisualisations from 'components/my-climate-watch/my-visualisations';
+import MyAccount from 'components/my-climate-watch/my-account';
+import MyCWEditor from 'pages/my-climate-watch/my-cw-editor';
 import error from 'pages/error';
 
 export default [
@@ -506,6 +511,36 @@ export default [
                 exact: true,
                 anchor: true,
                 label: 'Permissions & Licensing'
+              }
+            ]
+          },
+          {
+            label: 'MyEditor',
+            path: '/my-climate-watch/editor/:insightId?',
+            component: MyCWEditor,
+            exact: true
+          },
+          {
+            path: '/my-climate-watch',
+            component: MyClimateWatch,
+            routes: [
+              {
+                label: 'My Insights',
+                path: '/my-climate-watch',
+                component: MyInsights,
+                exact: true
+              },
+              {
+                label: 'Visualisations',
+                path: '/my-climate-watch/visualisations',
+                component: MyVisualisations,
+                exact: true
+              },
+              {
+                label: 'Account Settings',
+                path: '/my-climate-watch/account-settings',
+                component: MyAccount,
+                exact: true
               }
             ]
           },

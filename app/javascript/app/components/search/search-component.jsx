@@ -12,13 +12,13 @@ class Search extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: props.input
+      search: props.value
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.input !== this.props.input) {
-      this.setState({ search: nextProps.input });
+    if (nextProps.value !== this.props.value) {
+      this.setState({ search: nextProps.value });
     }
   }
 
@@ -37,8 +37,8 @@ class Search extends Component {
   render() {
     const { search } = this.state;
     const {
+      icon,
       theme,
-      input,
       placeholder,
       className,
       handleKeyUp,
@@ -56,17 +56,20 @@ class Search extends Component {
           onKeyUp={handleKeyUp}
           disabled={disabled}
         />
-        <Icon
-          icon={searchIcon}
-          className={cx(styles.iconSearch, theme.iconSearch)}
-        />
+        {icon && (
+          <Icon
+            icon={searchIcon}
+            className={cx(styles.iconSearch, theme.iconSearch)}
+          />
+        )}
       </div>
     );
   }
 }
 
 Search.propTypes = {
-  input: PropTypes.string,
+  icon: PropTypes.bool.isRequired,
+  value: PropTypes.string,
   placeholder: PropTypes.string,
   onChange: PropTypes.func,
   className: PropTypes.string,
@@ -77,7 +80,8 @@ Search.propTypes = {
 };
 
 Search.defaultProps = {
-  input: ''
+  icon: true,
+  value: ''
 };
 
 export default themr('Search', styles)(Search);

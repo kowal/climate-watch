@@ -1,0 +1,53 @@
+@import '~styles/layout.scss';
+
+.container {
+  height: 100%;
+}
+
+.steps {
+  height: 100%;
+  list-style: none;
+  padding: 0;
+}
+
+.step {
+  min-height: 25%;
+  border-bottom: 1px solid;
+  padding-bottom: 50px;
+}
+
+.stepTitle {
+  padding-bottom: 30px;
+  font-size: $font-size-large;
+  color: $theme-color;
+}
+
+.stepSubTitle {
+  padding-bottom: 10px;
+  font-size: $font-size;
+  font-weight: $font-weight-bold;
+  color: $theme-color;
+}
+
+.selectsContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.selectsItem {
+  flex-basis: 25%;
+  margin-right: 30px;
+}
+
+.inputText {
+  width: 60%;
+}
+
+.saveContainer {
+  text-align: right;
+}
+
+.saveBtn {
+  display: inline-block;
+  width: 170px;
+}
