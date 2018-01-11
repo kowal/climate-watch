@@ -13,7 +13,12 @@ const Intro = props => {
       <div className={theme.main}>
         <h2 className={theme.title}>{title}</h2>
         {button && (
-          <Button color="yellow" className={theme.button} link={button.link}>
+          <Button
+            color="yellow"
+            className={theme.button}
+            link={button.link}
+            onClick={button.onClick}
+          >
             {button.text}
           </Button>
         )}
@@ -22,16 +27,6 @@ const Intro = props => {
         className={cx(theme.description, textColumns ? theme.columns : '')}
         dangerouslySetInnerHTML={{ __html: description }} // eslint-disable-line
       />
-      {button && (
-        <Button
-          color="yellow"
-          className={theme.button}
-          link={button.link}
-          onClick={button.onClick}
-        >
-          {button.text}
-        </Button>
-      )}
     </div>
   );
 };
